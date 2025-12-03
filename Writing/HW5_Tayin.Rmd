@@ -50,7 +50,7 @@ freddie_gray_date <- ymd("2015-04-30")
 
 # create plot 
 Freddie_plot <- ggplot(monthly_homicides, aes(x = Date,y = Homicides)) +
-    geom_col(aes(fill = Season), color = "gray20", width = 40) +
+    geom_col(aes(fill = Season), color = "gray20", width = 30) +
     scale_fill_manual(values = c("Summer" = "gray80", "Winter" = "lightblue")) +
   
 # smooth line to show seasonal + long-term trend
@@ -70,6 +70,8 @@ Freddie_plot <- ggplot(monthly_homicides, aes(x = Date,y = Homicides)) +
            size = 4.5, 
            hjust = 0) +
   
+  
+  
 # add Labels
   labs( title = "Homicides in Baltimore, MD",
         x = "Date",
@@ -77,9 +79,9 @@ Freddie_plot <- ggplot(monthly_homicides, aes(x = Date,y = Homicides)) +
         fill = "") +
   theme_dark() +
   theme(
-    legend.position = "bottom",        # place below x-axis title
+    legend.position = "bottom",       
     legend.box = "vertical",
-    legend.margin = margin(t = -5),     # tighten spacing
+    legend.margin = margin(t = -5),     
     legend.title = element_blank(),
     plot.margin = margin(10, 10, 10, 10)) 
 
