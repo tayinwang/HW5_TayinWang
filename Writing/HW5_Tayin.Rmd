@@ -18,3 +18,71 @@ Select one of the following two figures to create for the homework:
 Choice 1: Pick one city in the data. Create a map showing the locations of the homicides in that city, using the sf framework discussed in class. Use tigris to download boundaries for some sub-city geography (e.g., tracts, block groups, county subdivisions) to show as a layer underneath the points showing homicides. Use different facets for solved versus unsolved homicides and different colors to show the three race groups with the highest number of homicides for that city (you may find the fct_lump function from forcats useful for this).
 
 Choice 2: Recreate the graph shown below. It shows monthly homicides in Baltimore, with a reference added for the date of the arrest of Freddie Gray and color used to show colder months (November through April) versus warmer months (May through October). There is a smooth line added to help show seasonal and long-term trends in this data.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+
+# load file
+homicides <- read_csv("/Users/tayinsmac/ERHS535_R programming/Homework/HW5/HW5_TayinWang/Data/homicide-data.csv")
+
+head(homicides)
+
+
+# rearrange data 
+homicides <- homicides %>% 
+  filter(city == "Baltimore" & state == "MD") %>% 
+  mutate(Date = ymd(reported_date), #mutate to right date format 
+         Month = month(Date),
+         Year = year(Date),
+         Season = ifelse(Month %in% c(11,12,1,2,3,4), "Winter","Summer")    
+         # Define seasons: Winter = Nov–Apr, Summer = May–Oct ^^
+         ) 
+
+# summarizing monthly homicides
+monthly_homicides <- homicides %>% 
+count(Year, Month, Season, name = "Homicides") %>%
+mutate(Date = ymd(paste(Year, Month, "1", sep = "-")))
+
+# arrest day of Freddie Gray 
+freddie_gray_date <- ymd("2015-04-30") 
+
+
+# create plot 
+Freddie_plot <- ggplot(monthly_homicides, aes(x = Date,y = Homicides)) +
+    geom_col(aes(fill = Season), color = "gray20", width = 40) +
+    scale_fill_manual(values = c("Summer" = "gray80", "Winter" = "lightblue")) +
+  
+# smooth line to show seasonal + long-term trend
+  geom_smooth(aes(group = 1), method = "loess", span = 0.3, se = FALSE, size = 1.2, color = "blue") +
+  
+# Add vertical dashed line for Freddie Gray arrest 
+  geom_vline(xintercept = freddie_gray_date, 
+             linetype = "dashed",
+             color = "red",
+             size = 1.2) +
+  
+# text annotation
+  annotate("text",
+           x = freddie_gray_date + months(3),
+           y = 42,
+           label = "Arrest of\nFreddie Gray", color = "white", 
+           size = 4.5, 
+           hjust = 0) +
+  
+# add Labels
+  labs( title = "Homicides in Baltimore, MD",
+        x = "Date",
+        y = "Monthly homicides",
+        fill = "") +
+  theme_dark() +
+  theme(
+    legend.position = "bottom",        # place below x-axis title
+    legend.box = "vertical",
+    legend.margin = margin(t = -5),     # tighten spacing
+    legend.title = element_blank(),
+    plot.margin = margin(10, 10, 10, 10)) 
+
+Freddie_plot
+
+```
